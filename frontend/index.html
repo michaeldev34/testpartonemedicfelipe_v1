@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediScript — Radiology Assistant</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>MediScript</h1>
+    <p class="subtitle">AI-powered radiology decision support</p>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>Patient & Study Details</h2>
+      <div class="form-grid">
+        <div class="field">
+          <label for="age">Patient Age</label>
+          <input id="age" type="number" min="0" value="0" />
+        </div>
+        <div class="field">
+          <label for="gender">Gender</label>
+          <select id="gender">
+            <option value="unknown">Unknown</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="field full-width">
+          <label for="preconditions">Preconditions</label>
+          <input id="preconditions" type="text" placeholder="e.g., COPD, diabetes" />
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Findings</h2>
+      <textarea id="findings" rows="6" placeholder="Dictate or type radiology findings here..."></textarea>
+      <div class="actions">
+        <button id="dictateBtn" type="button">Dictate</button>
+        <button id="analyzeBtn" type="button" disabled>Analyze</button>
+      </div>
+      <p id="status" class="status" aria-live="polite"></p>
+    </section>
+
+    <section class="card" id="resultsCard" hidden>
+      <h2>Potential Differential Diagnoses</h2>
+      <ul id="diagnosesList"></ul>
+      <p id="disclaimer" class="disclaimer"></p>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

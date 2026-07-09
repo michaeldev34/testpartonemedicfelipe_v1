@@ -1,0 +1,55 @@
+graph TB
+    subgraph "Cloud"
+        CDN["CDN (Static SPA)"]
+        GW["API Gateway + WAF"]
+        LB["Load Balancer"]
+        AUTH["Auth Provider (OAuth2 / SSO)"]
+        TRANS["FastAPI Transcribe Service"]
+        DIAG["FastAPI Diagnose Service"]
+        WHISPER["Whisper ASR GPU Pool"]
+        LLM["vLLM Llama-3-8B GPU Pool"]
+        REDIS["Redis Cache"]
+        PG["Managed Postgres"]
+        MQ["Message Queue"]
+        OBJ["Object Storage (Audio)"]
+        OBS["Observability (Logs / Metrics / Traces)"]
+    end
+
+    subgraph "On-Prem / Edge"
+        CLIN["Clinician Browser"]
+    end
+
+    CLIN -->|"HTTPS + TLS"| CDN
+    CDN -->|"SPA Assets"| CLIN
+    CLIN -->|"HTTPS + TLS"| GW
+    GW -->|"Auth + Rate Limit"| AUTH
+    AUTH -->|"Token"| LB
+    LB -->|"Route"| TRANS
+    LB -->|"Route"| DIAG
+
+    TRANS -->|"GPU Inference"| WHISPER
+    DIAG -->|"GPU Inference"| LLM
+    DIAG -->|"Cache Lookup"| REDIS
+    DIAG -->|"Persist Metadata"| PG
+    TRANS -->|"Store Audio"| MQ
+    MQ -->|"Async Write"| OBJ
+
+    TRANS -.->|"Audit Log"| OBS
+    DIAG -.->|"Audit Log"| OBS
+    WHISPER -.->|"Metrics"| OBS
+    LLM -.->|"Metrics"| OBS
+    GW -.->|"Access Logs"| OBS
+
+    style CLIN fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e
+    style CDN fill:#f0fdf4,stroke:#16a34a,color:#14532d
+    style GW fill:#fef3c7,stroke:#d97706,color:#78350f
+    style AUTH fill:#fce7f3,stroke:#db2777,color:#831843
+    style TRANS fill:#e0e7ff,stroke:#4f46e5,color:#312e81
+    style DIAG fill:#e0e7ff,stroke:#4f46e5,color:#312e81
+    style WHISPER fill:#f3e8ff,stroke:#9333ea,color:#4a1d96
+    style LLM fill:#f3e8ff,stroke:#9333ea,color:#4a1d96
+    style REDIS fill:#ffedd5,stroke:#ea580c,color:#7c2d12
+    style PG fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style MQ fill:#ccfbf1,stroke:#0d9488,color:#134e4a
+    style OBJ fill:#ccfbf1,stroke:#0d9488,color:#134e4a
+    style OBS fill:#f1f5f9,stroke:#475569,color:#1e293b
