@@ -1,27 +1,31 @@
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException
 
-from app.services.stt import transcribe
+from app.services.snippets import audio
 
 router = APIRouter()
 
 
 @router.post("/transcribe")
 async def transcribe_audio(
-    audio: UploadFile = File(...),
+    audio: bytes = File(...),
     section_id: str = Form(...),
 ):
-    if not audio.content_type or not audio.content_type.startswith("audio"):
-        raise HTTPException(status_code=400, detail="File must be an audio file.")
-
-    audio_bytes = await audio.read()
-    if not audio_bytes:
+    if not audio:
         raise HTTPException(status_code=400, detail="Empty audio file.")
 
     try:
-        text = transcribe(audio_bytes, section_id, filename=audio.filename or "audio.webm")
+        result = audio.transcribe_audio(
+            audio_bytes=audio,
+            section_id=section_id,
+            filename="upload.webm",
+        )
     except ValueError as exc:
         raise HTTPException(status_code=413, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Transcription failed: {exc}") from exc
 
-    return {"text": text}
+    return {
+        "text": result.text,
+        "section_id": result.section_id,
+        "backend": result.backend,
+    }

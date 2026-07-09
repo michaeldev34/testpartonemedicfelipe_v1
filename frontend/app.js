@@ -12,6 +12,9 @@
     resultsCard: document.getElementById("resultsCard"),
     diagnosesList: document.getElementById("diagnosesList"),
     disclaimer: document.getElementById("disclaimer"),
+    reportSection: document.getElementById("reportSection"),
+    reportMarkdown: document.getElementById("reportMarkdown"),
+    copyReportBtn: document.getElementById("copyReportBtn"),
   };
 
   let mediaRecorder = null;
@@ -50,7 +53,6 @@
       const blob = new Blob(audioChunks, { type: "audio/webm" });
       const formData = new FormData();
       formData.append("audio", blob, "recording.webm");
-      formData.append("section_id", "findings");
 
       setStatus("Transcribing audio...");
       try {
@@ -66,7 +68,7 @@
 
         const data = await response.json();
         els.findings.value = data.text || "";
-        setStatus("Transcription complete.", false);
+        setStatus(`Transcription complete (${data.backend || "unknown"} backend).`, false);
         setTimeout(clearStatus, 2000);
       } catch (err) {
         setStatus(`Transcription error: ${err.message}`, false);
@@ -120,7 +122,7 @@
       }
 
       const data = await response.json();
-      renderDiagnoses(data.diagnoses || [], data.disclaimer || "");
+      renderDiagnoses(data.diagnoses || [], data.disclaimer || "", data);
       setStatus("Analysis complete.", false);
       setTimeout(clearStatus, 2000);
     } catch (err) {
@@ -130,7 +132,7 @@
     }
   }
 
-  function renderDiagnoses(diagnoses, disclaimer) {
+  function renderDiagnoses(diagnoses, disclaimer, reportData = {}) {
     els.diagnosesList.innerHTML = "";
     diagnoses.forEach((text) => {
       const li = document.createElement("li");
@@ -138,7 +140,30 @@
       els.diagnosesList.appendChild(li);
     });
     els.disclaimer.textContent = disclaimer;
+
+    if (reportData.report_markdown) {
+      els.reportMarkdown.textContent = reportData.report_markdown;
+      els.reportSection.hidden = false;
+    } else {
+      els.reportSection.hidden = true;
+    }
+
     els.resultsCard.hidden = false;
+  }
+
+  async function copyReport() {
+    const text = els.reportMarkdown.textContent;
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      const original = els.copyReportBtn.textContent;
+      els.copyReportBtn.textContent = "Copied!";
+      setTimeout(() => {
+        els.copyReportBtn.textContent = original;
+      }, 1500);
+    } catch (err) {
+      setStatus("Failed to copy report.", false);
+    }
   }
 
   els.dictateBtn.addEventListener("click", () => {
@@ -150,6 +175,7 @@
   });
 
   els.analyzeBtn.addEventListener("click", analyzeFindings);
+  els.copyReportBtn.addEventListener("click", copyReport);
 
   // Enable analyze when findings change
   els.findings.addEventListener("input", () => {

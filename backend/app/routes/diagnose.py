@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 
 from pydantic import BaseModel, Field, ValidationError
-from app.services.llm import diagnose
+from app.services.llm import generate_full_report
 
 router = APIRouter()
 
@@ -16,7 +16,7 @@ class DiagnoseRequest(BaseModel):
 @router.post("/analyze-diagnose")
 async def analyze_diagnose(request: DiagnoseRequest):
     try:
-        results = diagnose(
+        report = generate_full_report(
             age=request.age,
             gender=request.gender,
             preconditions=request.preconditions,
@@ -27,7 +27,4 @@ async def analyze_diagnose(request: DiagnoseRequest):
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Diagnosis failed: {exc}") from exc
 
-    disclaimer = (
-        "Decision-support only — confirm with supervising physician."
-    )
-    return {"diagnoses": results, "disclaimer": disclaimer}
+    return report

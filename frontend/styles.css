@@ -175,6 +175,34 @@ button:disabled {
   font-style: italic;
 }
 
+.report-markdown {
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+#copyReportBtn {
+  margin-top: 0.75rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+#copyReportBtn:hover {
+  background: var(--accent-hover);
+}
+
 @media (max-width: 640px) {
   .form-grid {
     grid-template-columns: 1fr;
