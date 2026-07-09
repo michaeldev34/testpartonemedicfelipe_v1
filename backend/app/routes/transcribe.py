@@ -1,6 +1,6 @@
 from fastapi import APIRouter, File, Form, HTTPException
 
-from app.services.snippets import audio
+from app.services.snippets import audio as audio_snippet
 
 router = APIRouter()
 
@@ -14,7 +14,7 @@ async def transcribe_audio(
         raise HTTPException(status_code=400, detail="Empty audio file.")
 
     try:
-        result = audio.transcribe_audio(
+        result = audio_snippet.transcribe_audio(
             audio_bytes=audio,
             section_id=section_id,
             filename="upload.webm",
